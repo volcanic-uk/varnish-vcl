@@ -2,22 +2,23 @@ sub vcl_recv {
     unset req.http.Cookie;
 }
 
-# sub vcl_hit {
-#     set resp.http.X-Varnish-Cache = "hit";
-# }
-# 
-# sub vcl_miss {
-#     set resp.http.X-Varnish-Cache = "miss";
-# }
-# 
-# sub vcl_pass {
-#     set resp.http.X-Varnish-Cache = "pass";
-# }
+sub vcl_hit {
+    set req.http.X-Varnish-Cache = "hit";
+}
+
+sub vcl_miss {
+    set req.http.X-Varnish-Cache = "miss";
+}
+
+sub vcl_pass {
+    set req.http.X-Varnish-Cache = "pass";
+}
 
 sub vcl_backend_response {
     unset beresp.http.Set-Cookie;
     unset beresp.http.Cookie;
     set beresp.http.Cache-Control = "public, no-cache";
+    set beresp.ttl = 30s;
     
     if (bereq.http.Cookie ~ "(UserID|_session)") {
         set beresp.http.X-Cacheable = "NO:Got Session";
@@ -50,4 +51,9 @@ sub vcl_backend_response {
     if (beresp.http.content-type ~ "text") {
         set beresp.do_gzip = true;
     }
+    
+}
+
+sub vcl_deliver {
+    set resp.http.X-Varnish-Cache = req.http.X-Varnish-Cache;
 }
