@@ -56,5 +56,4 @@ sub vcl_backend_response {
 
 sub vcl_deliver {
     set resp.http.X-Varnish-Cache = req.http.X-Varnish-Cache;
-    set resp.http.X-Uncacheable = beresp.uncacheable;
 }
