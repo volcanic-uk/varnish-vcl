@@ -1,4 +1,8 @@
 sub vcl_recv {
+    # send all requests to our backend round-robin (brr)
+    set req.backend_hint = brr.backend();
+
+    # trash the cookies
     unset req.http.Cookie;
 }
 
