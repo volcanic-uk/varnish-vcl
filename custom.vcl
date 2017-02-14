@@ -3,8 +3,9 @@ sub vcl_recv {
     set req.backend_hint = brr.backend();
 
     # decide if request can look in cache
-    if (req.url){
+    if (req.url ~ "^/(admin|users|recruiter|dashboard|consultant/|job-search)"){
         set req.http.X-Varnish-Url = req.url;
+        return(pass);
     } elsif (req.http.Cookie ~ "_user_logged_in") {
         return(pass);
     } else {
@@ -32,7 +33,7 @@ sub vcl_backend_response {
     set beresp.http.Cache-Control = "public, no-cache";
     set beresp.ttl = 30s;
     
-    if (bereq.http.Cookie ~ "(UserID|_session)") {
+    if (bereq.http.Cookie ~ "(_user_logged_in|_session)") {
         set beresp.http.X-Cacheable = "NO:Got Session";
         set beresp.uncacheable = true;
         return (deliver);
