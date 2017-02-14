@@ -2,8 +2,16 @@ sub vcl_recv {
     # send all requests to our backend round-robin (brr)
     set req.backend_hint = brr.backend();
 
-    # trash the cookies
-    unset req.http.Cookie;
+    # decide if request can look in cache
+    if (req.url){
+        set req.http.X-Varnish-Url = req.url
+    } elsif (req.http.Cookie ~ "_user_logged_in") {
+        return(pass)
+    } else {
+        # trash the cookies
+        unset req.http.Cookie;
+        return(hash)
+    }
 }
 
 sub vcl_hit {
@@ -60,4 +68,5 @@ sub vcl_backend_response {
 
 sub vcl_deliver {
     set resp.http.X-Varnish-Cache = req.http.X-Varnish-Cache;
+    set resp.http.X-Varnish-Url = req.http.X-Varnish-Url
 }
