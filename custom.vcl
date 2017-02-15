@@ -3,7 +3,7 @@ sub vcl_recv {
     set req.backend_hint = brr.backend();
 
     # store requested url for returning later
-    set req.http.X-Varnish-Url = req.url
+    set req.http.X-Varnish-Url = req.url;
 
     # decide if request can look in cache
     if (req.url ~ "^/(admin|users|recruiter|dashboard|consultant/|job-search)"){
