@@ -29,6 +29,12 @@ sub vcl_pass {
 
 sub vcl_backend_response {
 
+    if (beresp.status > 500) {
+       # the failing backend is blacklisted and we try to fetch content from another server
+       saintmode.blacklist(5s);
+       return (retry);
+    }
+
     if (beresp.http.X-Do-Not-Cache == "true") {
         set beresp.uncacheable = true;
     } else {
