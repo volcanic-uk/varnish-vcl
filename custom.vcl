@@ -2,9 +2,11 @@ sub vcl_recv {
     # send all requests to our backend round-robin (brr)
     set req.backend_hint = brr.backend();
 
+    # store requested url for returning later
+    set req.http.X-Varnish-Url = req.url
+
     # decide if request can look in cache
     if (req.url ~ "^/(admin|users|recruiter|dashboard|consultant/|job-search)"){
-        set req.http.X-Varnish-Url = req.url;
         return(pass);
     } elsif (req.http.Cookie ~ "_user_logged_in") {
         return(pass);
