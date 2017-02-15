@@ -28,12 +28,24 @@ sub vcl_pass {
 }
 
 sub vcl_backend_response {
-    unset beresp.http.Set-Cookie;
-    unset beresp.http.Cookie;
-    set beresp.http.Cache-Control = "public, no-cache";
-    set beresp.ttl = 30s;
+
+    if (beresp.http.X-Do-Not-Cache == "true") {
+        set beresp.uncacheable = true;
+    } else {
+        unset beresp.http.Set-Cookie;
+        unset beresp.http.Cookie;
+        set beresp.http.Cache-Control = "public, no-cache";
+        set beresp.ttl = 3600s; # 1h in cache 
+        set beresp.grace = 864000s; # 10 days grace period
+    }
     
-    if (bereq.http.Cookie ~ "(_user_logged_in|_session)") {
+
+
+
+    
+
+    # debugging messages
+    if (beresp.http.Cookie ~ "(_user_logged_in|_session)") {
         set beresp.http.X-Cacheable = "NO:Got Session";
         set beresp.uncacheable = true;
         return (deliver);
