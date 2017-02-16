@@ -42,7 +42,7 @@ sub vcl_backend_response {
     } else {
         unset beresp.http.Set-Cookie;
         unset beresp.http.Cookie;
-        set beresp.http.Cache-Control = "public, no-cache";
+        set beresp.http.Cache-Control = "public";
         set beresp.ttl = 3600s; # 1h in cache 
         set beresp.grace = 864000s; # 10 days grace period
     }
@@ -90,4 +90,5 @@ sub vcl_backend_response {
 sub vcl_deliver {
     set resp.http.X-Varnish-Cache = req.http.X-Varnish-Cache;
     set resp.http.X-Varnish-Url = req.http.X-Varnish-Url;
+    set resp.http.Cache-Control = "private, no-cache"
 }
