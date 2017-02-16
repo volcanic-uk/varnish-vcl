@@ -6,7 +6,7 @@ sub vcl_recv {
     set req.http.X-Varnish-Url = req.url;
 
     # decide if request can look in cache
-    if (req.url ~ "^/(admin|users|recruiter|dashboard|consultant/|job-search)"){
+    if (req.url ~ "^\/(admin|users|recruiter|dashboard|consultant(?!s)|job-search|api)"){
         return(pass);
     } elsif (req.http.Cookie ~ "_user_logged_in") {
         return(pass);
