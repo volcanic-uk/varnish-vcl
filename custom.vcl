@@ -1,9 +1,25 @@
+acl purgers {
+    "127.0.0.1";
+    "86.155.199.228";
+}
+
 sub vcl_recv {
     # send all requests to our backend round-robin (brr)
     set req.backend_hint = brr.backend();
 
     # store requested url for returning later
     set req.http.X-Varnish-Url = req.url;
+
+    if (req.method == "BAN") {
+        # limit who can purge the cache
+        if (!client.ip ~ purgers) {
+            return (synth(405, "Purging not allowed for " + client.ip));
+        }
+        ban("req.http.host == " + req.http.host);
+        
+        # Throw a synthetic page so the request won't go to the backend.
+        return(synth(200, "Ban added"));
+    }
 
     # decide if request can look in cache
     if (req.url ~ "^\/(admin|users|recruiter|dashboard|consultant(?!s)|job-search|api)"){
