@@ -1,7 +1,4 @@
-acl purgers {
-    "127.0.0.1";
-    "86.155.199.228";
-}
+
 
 sub vcl_recv {
     # send all requests to our backend round-robin (brr)
@@ -19,6 +16,11 @@ sub vcl_recv {
         
         # Throw a synthetic page so the request won't go to the backend.
         return(synth(200, "Ban added"));
+    }
+
+    # pass anything that isnt a get or head
+    if (req.method != "GET" && req.method != "HEAD"){
+        return(pass);
     }
 
     # decide if request can look in cache

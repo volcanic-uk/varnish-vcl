@@ -21,3 +21,8 @@ sub vcl_init {
     new brr = directors.round_robin();
     brr.add_backend(sm1.backend());
 }
+
+acl purgers {
+    "127.0.0.1";
+    "86.155.199.228";
+}
